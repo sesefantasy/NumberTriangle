@@ -1,4 +1,6 @@
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is the provided NumberTriangle class to be used in this coding task.
@@ -64,6 +66,38 @@ public class NumberTriangle {
      */
     public void maxSumPath() {
         // for fun [not for credit]:
+
+        // if this is a leaf node, do nothing
+        if (left == null && right == null) {
+            return;
+        }
+
+        // recurse on children
+        if (left != null) {
+            left.maxSumPath();
+        }
+        if (right != null) {
+            right.maxSumPath();
+        }
+
+        // update this node's root with max path sum
+        int leftSum = 0;
+        int rightSum = 0;
+        if (left != null) {
+            leftSum = left.getRoot();
+        } else {
+            leftSum = 0;
+        }
+        if (right != null) {
+            rightSum = right.getRoot();
+        } else {
+            rightSum = 0;
+        }
+        root = root + Math.max(leftSum, rightSum);
+
+        // collapse into a leaf
+        left = null;
+        right = null;
     }
 
 
@@ -89,7 +123,19 @@ public class NumberTriangle {
      */
     public int retrieve(String path) {
         // TODO implement this method
-        return -1;
+        NumberTriangle current = this;
+
+        for (int i = 0; i < path.length(); i++) {
+            char direction = path.charAt(i);
+            if (direction == 'r') {
+                current = current.right;
+            } else if (direction == 'l') {
+                current = current.left;
+            } else {
+                throw new IllegalArgumentException("Invalid direction");
+            }
+        }
+        return current.getRoot();
     }
 
     /** Read in the NumberTriangle structure from a file.
@@ -111,6 +157,7 @@ public class NumberTriangle {
 
 
         // TODO define any variables that you want to use to store things
+        List<List<NumberTriangle>> rows = new ArrayList<>();
 
         // will need to return the top of the NumberTriangle,
         // so might want a variable for that.
@@ -123,11 +170,33 @@ public class NumberTriangle {
             System.out.println(line);
 
             // TODO process the line
+            String[] parts = line.split(" ");
+            List<NumberTriangle> currentRow = new ArrayList<>();
+            for (String part : parts) {
+                int value = Integer.parseInt(part);
+                currentRow.add(new NumberTriangle(value));
+            }
+
+            // if not the first row, link nodes with the row above
+            if (!rows.isEmpty()) {
+                List<NumberTriangle> preRow = rows.get(rows.size() - 1);
+                for (int i = 0; i < preRow.size(); i++) {
+                    preRow.get(i).setLeft(currentRow.get(i));
+                    preRow.get(i).setRight(currentRow.get(i+1));
+                }
+            }
+
+            // add this row to the rows list
+            rows.add(currentRow);
 
             //read the next line
             line = br.readLine();
         }
         br.close();
+
+        if (!rows.isEmpty()) {
+            top = rows.get(0).get(0);
+        }
         return top;
     }
 
