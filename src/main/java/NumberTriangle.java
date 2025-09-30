@@ -122,7 +122,7 @@ public class NumberTriangle {
      *
      */
     public int retrieve(String path) {
-        // TODO implement this method
+        // TODO implement this method removed
         NumberTriangle current = this;
 
         for (int i = 0; i < path.length(); i++) {
